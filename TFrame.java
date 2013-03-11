@@ -146,8 +146,6 @@ public class TFrame extends JFrame implements KeyListener{
 		State s = new State();
 		TFrame t = new TFrame(s);
 		s.draw();
-		s.drawNext(0,0);
-		//t.save("picture.png");
-		
+		s.drawNext(0,0);		
 	}
 }
