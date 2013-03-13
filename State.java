@@ -49,8 +49,8 @@ public class State {
     //bottom of the pieces [pieceID][orientation][0 for no hole made, 1 for got hole]
     //use this for hole computation..
     private static int[][][] pBottom = {
-        {{0, 0}}, //square [][]                 0
-                         //[][]
+        {{0, 0}}, //square 	[][]                 0
+                         //	[][]
         {{0}, {0, 0, 0, 0}}, //the long stick   1
         //[], [][][][]
         //[]
