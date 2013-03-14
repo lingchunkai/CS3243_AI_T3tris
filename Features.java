@@ -50,13 +50,24 @@ public class Features {
 
         int [][]clonedField = cloneField(s.getField());
 
+        for (int i = 0; i < State.getpWidth()[nextPiece][orientation]; i++) {
+            for (int h = newHt + State.getpBottom()[nextPiece][orientation][i];
+                    h < newHt + State.getpTop()[nextPiece][orientation][i]; h++) {
+
+               if (h >= State.ROWS)
+                continue; //GGPOK already, dont consider -.-
+
+               clonedField[h][i + slot] = 1;
+            }
+        }
+        
         int linesCleared = 0;
         //from the new height + the next piece height (-1 cos index starts from 0)
         //down to newHt
         for (int h = newHt + State.getpHeight()[nextPiece][orientation] - 1; h >= newHt; h--) {
-            if (h >= State.ROWS) {
+            if (h >= State.ROWS) 
                 continue; //GGPOK already, dont consider -.-
-            }
+            
             boolean completeRow = true;
             for (int c = 0; c < State.COLS; c++) {
                 if (clonedField[h][c] == 0) { //if got hole
