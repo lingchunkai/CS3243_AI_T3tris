@@ -54,7 +54,7 @@ public class Features {
             for (int h = newHt + State.getpBottom()[nextPiece][orientation][i];
                     h < newHt + State.getpTop()[nextPiece][orientation][i]; h++) {
 
-               if (h >= State.ROWS)
+               if (h >= State.ROWS - 1)
                 continue; //GGPOK already, dont consider -.-
 
                clonedField[h][i + slot] = 1;
@@ -65,7 +65,7 @@ public class Features {
         //from the new height + the next piece height (-1 cos index starts from 0)
         //down to newHt
         for (int h = newHt + State.getpHeight()[nextPiece][orientation] - 1; h >= newHt; h--) {
-            if (h >= State.ROWS) 
+            if (h >= State.ROWS - 1) // index start from 0
                 continue; //GGPOK already, dont consider -.-
             
             boolean completeRow = true;
