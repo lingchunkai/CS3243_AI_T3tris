@@ -6,13 +6,7 @@ public abstract class GeneticAlgo<T extends Chromosome> {
 
     void generateNextGeneration() {
 
-        //for (Chromosome i : pop){
-        //	System.out.println(i.GetStr());
-        //}
         List<ParentPair> parents = selection();
-        //for (ParentPair i : parents){
-        //	System.out.println(i.a.GetStr() + " AND " + i.b.GetStr());
-        //}
         List<Chromosome> children = crossover(parents);
         children = mutate(children);
         for (Chromosome c : children) {

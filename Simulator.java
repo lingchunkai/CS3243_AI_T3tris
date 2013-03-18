@@ -1,7 +1,16 @@
 public class Simulator {
-
+	private int simulatedHeight;
+	
+	Simulator() {
+		simulatedHeight = State.ROWS;
+	}
+	
+	Simulator(int simulatedHeight) {
+		this.simulatedHeight = simulatedHeight; 
+	}
+	
     public int getNumLinesRemoved(Chromosome c) {
-        State s = new State();
+        State s = new CopiedState(new State(), simulatedHeight);
         while (!s.hasLost()) {
             s.makeMove(c.pickMove(s));
         }
@@ -9,7 +18,7 @@ public class Simulator {
     }
 
     public int getNumTurnsPassed(Chromosome c) {
-        State s = new State();
+        State s = new CopiedState(new State(), simulatedHeight);
 
         while (!s.hasLost()) {
             s.makeMove(c.pickMove(s));
