@@ -1,41 +1,48 @@
 
 import java.util.*;
 
-public class Features {
+public class EvaluationFunctions {
+    //This class are the list of heuristics that will be used for the AI Agent
+    //State s = Current State
+    //move = Action
 
-    public static int contactAreaScore(State s, int[] move) {
-        int result = 0;
-        //to be continued..
-        return result;
+    private static int[][] cloneField(int[][] source) {
+        //Clone a field
+        int[][] clonedField = new int[source.length][source[0].length];
+        for (int i = 0; i < source.length; i++) {
+            System.arraycopy(source[i], 0, clonedField[i], 0, source[i].length);
+        }
+        return clonedField;
     }
 
-    //Maximum Altitude - The height of the tallest column on the game board
-    //note that it does not care about whether the rows get clear anot
-    public static int maximumAltitude(State s, int[] move) {
-        int highest = -1;
+    //Compute c' from c and a..
+    private static int[][] computeHeuristicField(State s, int[] move) {
         int nextPiece = s.getNextPiece();
         int orientation = move[0];
         int slot = move[1];
-        int pieceHt = State.getpHeight()[nextPiece][orientation];
 
-        for (int w = 0; w < State.getpWidth()[nextPiece][orientation]; w++) {
-            highest = Math.max(s.getTop()[slot + w] + pieceHt, highest);
+        int newHt = s.getTop()[slot] - State.getpBottom()[nextPiece][orientation][0];
+        int[][] clonedField = cloneField(s.getField());
+        //for the tromino width, do the same thing
+        for (int w = 1; w < State.getpWidth()[nextPiece][orientation]; w++) {
+            //favor clearing the top rows first
+            newHt = Math.max(s.getTop()[slot + w] - State.getpBottom()[nextPiece][orientation][w], newHt);
         }
+        for (int i = 0; i < State.getpWidth()[nextPiece][orientation]; i++) {
+            for (int h = newHt + State.getpBottom()[nextPiece][orientation][i];
+                    h < newHt + State.getpTop()[nextPiece][orientation][i]; h++) {
 
-        return highest;
+                if (h >= State.ROWS - 1) {
+                    continue; //GGPOK already, dont consider -.-
+                }
+                clonedField[h][i + slot] = s.getTurnNumber();
+            }
+        }
+        return clonedField;
     }
 
-    //The difference in height between the tallest column and the shortest column
-    public static int altitudeDelta(State s, int[] move) {
-        return Features.maximumAltitude(s, move) - Features.findMinHeight(s);
-    }
 
-    //Total lines clear so far -_-
-    public static int linesCleared(State s, int[] move) {
-        return s.getRowsCleared() + computelinesClearScore(s, move);
-    }
-
-    public static int computelinesClearScore(State s, int[] move) {
+    private static int computelinesClearScore(State s, int[] move) {
         int nextPiece = s.getNextPiece();
         int orientation = move[0];
         int slot = move[1];
@@ -49,30 +56,18 @@ public class Features {
             newHt = Math.max(s.getTop()[slot + w] - State.getpBottom()[nextPiece][orientation][w], newHt);
         }
 
-        int[][] clonedField = cloneField(s.getField());
-
-        for (int i = 0; i < State.getpWidth()[nextPiece][orientation]; i++) {
-            for (int h = newHt + State.getpBottom()[nextPiece][orientation][i];
-                    h < newHt + State.getpTop()[nextPiece][orientation][i]; h++) {
-
-                if (h >= State.ROWS - 1) {
-                    continue; //GGPOK already, dont consider -.-
-                }
-                clonedField[h][i + slot] = 1;
-            }
-        }
+        int[][] resultantField = computeHeuristicField(s, move);
 
         int linesCleared = 0;
         //from the new height + the next piece height (-1 cos index starts from 0)
         //down to newHt
         for (int h = newHt + State.getpHeight()[nextPiece][orientation] - 1; h >= newHt; h--) {
-            if (h >= State.ROWS - 1) // index start from 0
-            {
+            if (h >= State.ROWS - 1) {// index start from 0
                 continue; //GGPOK already, dont consider -.-
             }
             boolean completeRow = true;
             for (int c = 0; c < State.COLS; c++) {
-                if (clonedField[h][c] == 0) { //if got hole
+                if (resultantField[h][c] == 0) { //if got hole
                     completeRow = false;
                     break;
                 }
@@ -94,43 +89,34 @@ public class Features {
 
         return lowest;
     }
-
-    private static int[][] cloneField(int[][] source) {
-        //Clone a field
-        int[][] clonedField = new int[source.length][source[0].length];
-        for (int i = 0; i < source.length; i++) {
-            System.arraycopy(source[i], 0, clonedField[i], 0, source[i].length);
-        }
-        return clonedField;
-    }
-
-    private static int[][] computeHeuristicField(State s, int[] move) {
-
+    
+    //Maximum Altitude - The height of the tallest column on the game board
+    //note that it does not care about whether the rows get clear anot
+    public static int maximumAltitude(State s, int[] move) {
+        int highest = -1;
         int nextPiece = s.getNextPiece();
         int orientation = move[0];
         int slot = move[1];
+        int pieceHt = State.getpHeight()[nextPiece][orientation];
 
-        int newHt = s.getTop()[slot] - State.getpBottom()[nextPiece][orientation][0];
-        int[][] clonedField = cloneField(s.getField());
-        //for the tromino width, do the same thing
-        for (int w = 1; w < State.getpWidth()[nextPiece][orientation]; w++) {
-            //favor clearing the top rows first
-            newHt = Math.max(s.getTop()[slot + w] - State.getpBottom()[nextPiece][orientation][w], newHt);
+        for (int w = 0; w < State.getpWidth()[nextPiece][orientation]; w++) {
+            highest = Math.max(s.getTop()[slot + w] + pieceHt, highest);
         }
-        for (int i = 0; i < State.getpWidth()[nextPiece][orientation]; i++) {
-            for (int h = newHt + State.getpBottom()[nextPiece][orientation][i];
-                    h < newHt + State.getpTop()[nextPiece][orientation][i]; h++) {
 
-                if (h >= State.ROWS - 1) {
-                    continue; //GGPOK already, dont consider -.-
-                }
-                clonedField[h][i + slot] = 1;
-            }
-        }
-        return clonedField;
+        return highest;
     }
-    //total number of filled spot count after executing a move using the new 
 
+    //The difference in height between the tallest column and the shortest column
+    public static int altitudeDelta(State s, int[] move) {
+        return EvaluationFunctions.maximumAltitude(s, move) - EvaluationFunctions.findMinHeight(s);
+    }
+
+    //Total lines clear so far -_-
+    public static int linesCleared(State s, int[] move) {
+        return s.getRowsCleared() + computelinesClearScore(s, move);
+    }
+
+    //total number of filled spot count after executing a move using the new 
     public static int filledSpotCount(State s, int[] move) {
 
         int count = 0;
@@ -147,6 +133,7 @@ public class Features {
         return count;
     }
 
+    //same as filled spot count but multiplied by the row it is in
     public static int weightedFilledSpotCount(State s, int[] move) {
         int count = 0;
         int[][] resultantField = computeHeuristicField(s, move);
@@ -162,6 +149,7 @@ public class Features {
         return count;
     }
 
+    //Highest hole after executing a move
     public static int highestHole(State s, int[] move) {
         int max = 0;
         int[][] resultantField = computeHeuristicField(s, move);
@@ -180,6 +168,7 @@ public class Features {
         return max;
     }
 
+    //no. of connected holes after executing a move
     public static int connectedHoles(State s, int[] move) {
         Set<String> holes = new HashSet<String>();
         int count = 0;
@@ -208,13 +197,12 @@ public class Features {
                         }
                     }
                 }
-
-
             }
         }
         return count;
     }
 
+    //no. of holes after executing a move
     public static int holesCount(State s, int[] move) {
         int count = 0;
         int[][] resultantField = computeHeuristicField(s, move);
@@ -229,6 +217,7 @@ public class Features {
         return count;
     }
 
+    //same as holesCount but multipled by the row it is in
     public static int weightedHolesCount(State s, int[] move) {
         int count = 0;
         int[][] resultantField = computeHeuristicField(s, move);
@@ -243,6 +232,7 @@ public class Features {
         return count;
     }
 
+    //No. of blocks above highest hole
     public static int blocksAboveHighestHole(State s, int[] move) {
         int holex = 0;
         int holey = 0;
@@ -263,18 +253,71 @@ public class Features {
         return s.getTop()[holex] - holey;
     }
 
+    //maximum contact area of a piece after executing a move
+    public static int maximumContactArea(State s, int[] move) {
+        int count = 0;
+        int nextPiece = s.getNextPiece();
+        int orientation = move[0];
+        int slot = move[1];
+
+        int newHt = s.getTop()[slot] - State.getpBottom()[nextPiece][orientation][0];
+        int[][] currField = s.getField();
+        //for the tromino width, do the same thing
+        for (int w = 1; w < State.getpWidth()[nextPiece][orientation]; w++) {
+            //favor clearing the top rows first
+            newHt = Math.max(s.getTop()[slot + w] - State.getpBottom()[nextPiece][orientation][w], newHt);
+        }
+
+        for (int c = 0; c < State.getpWidth()[nextPiece][orientation]; c++) {
+            for (int h = newHt + State.getpBottom()[nextPiece][orientation][c];
+                    h < newHt + State.getpTop()[nextPiece][orientation][c]; h++) {
+
+                if (h >= State.ROWS - 1) {
+                    continue; //GGPOK already, dont consider -.-
+                }
+                //get the left, right and bottom sides
+                int bottom = h - 1;
+                int leftSide = c - 1 + slot;
+                int rightSide = c + 1 + slot;
+
+                //bottom check, to see if it touches
+                if ((currField[bottom][c + slot] != 0) && (bottom >= 0)) {
+                    count += 1;
+                }
+                //left side check to see if it touches
+                if ((currField[h][leftSide] != 0) && (leftSide >= 0)) {
+                    count += 1;
+                }
+                if (leftSide < 0) { //touch wall check
+                    count += 1;
+                }
+                //Right side check to see if it touches
+                if ((currField[h][rightSide] != 0) && (rightSide < State.COLS)) {
+                    count += 1;
+                }
+                if (rightSide >= State.COLS) { //touch wall check
+                    count += 1;
+                }
+            }
+        }
+        return count;
+    }
+
+    //maximum depth of a well after executing a move
     public static int maxWellDepth(State s, int[] move) {
         int max = 0;
         int[][] resultantField = computeHeuristicField(s, move);
         return max;
     }
 
+    //no. of wells after executing a move
     public static int wellCount(State s, int[] move) {
         int count = 0;
         int[][] resultantField = computeHeuristicField(s, move);
         return count;
     }
 
+    //Surface area roughness after executing a move
     public static int surfaceAreaRoughness(State s, int[] move) {
         int roughness = 0;
         int[][] resultantField = computeHeuristicField(s, move);
