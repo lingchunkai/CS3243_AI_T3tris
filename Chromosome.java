@@ -2,14 +2,15 @@
 import java.util.*;
 
 
-public abstract class Chromosome {
+public abstract class Chromosome implements Comparable<Chromosome>{
 
     static private Chromosome bestCandidate = null;
     private double fitness = 0;
-
+    protected double numGames = 0;
+    
     abstract Chromosome Crossover(Chromosome other);
 
-    abstract double evaluate(State s);
+    abstract double evaluate(CopiedState s);
 
     abstract void mutate();
 
@@ -29,7 +30,9 @@ public abstract class Chromosome {
             // Choose the move with the best evaluation
             CopiedState newState = new CopiedState(s);
             newState.makeMove(x);
+            if (newState.lost) continue;	// Avoid losing at all costs.
             double score = evaluate(newState);
+            
             if (score > bestScore) {
                 bestScore = score;
                 bestMoveIndex = x;
@@ -52,8 +55,27 @@ public abstract class Chromosome {
         return fitness;
     }
 
+    // Adds a particular game score and recomputes the average score (to give the fitness) 
+    public void addGameScore(double score) {
+    	fitness = (fitness * numGames + score) / (numGames + 1);
+    	numGames++;
+    }
+    
     public void setFitness(double score) {
         fitness = score;
+    }
+    
+    
+    // Compares between the fitness of two Chromosomes such that they will be sorted
+    // in DESCENDING order.
+    public int compareTo(Chromosome compareChromosome) {
+    	if (this.fitness < compareChromosome.fitness)
+    		return 1;
+    	else if (this.fitness == compareChromosome.fitness)
+    		return 0;
+    	
+    	return -1;
+    	
     }
 }
 
