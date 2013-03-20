@@ -1,6 +1,6 @@
 import java.util.*;
 
-public abstract class GeneticAlgo<T extends Chromosome> {
+public abstract class GeneticAlgo {
 
     public List<Chromosome> population;
 

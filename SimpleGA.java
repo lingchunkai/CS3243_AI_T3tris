@@ -1,28 +1,56 @@
 import java.util.*;
 
-/////////////////////////////////////////////////////////////////////////////////////////
-//// IMPLEMENTATION OF TRAINER COMES HERE
-////
-/////////////////////////////////////////////////////////////////////////////////////////
 
-
-public class SimpleGA<T extends Chromosome> extends GeneticAlgo<T> {
+/**
+ * Simplest genetic algorithm possible
+ * 
+ * This algorithm creates a genetic algorithm with the following properties:
+ * 1) Constant population size
+ * 2) Flexible maximum height (set to infinity if we want to simulate full games)
+ * 3) Crossover rate refers to the fraction of individuals which will be formed by child chromosomes
+ * 4) Mutation rate refers to the fraction of *CHILDREN* which will be mutated
+ * 5) We test each chromsome with 5 games per generation.
+ * 6) Chromosomes to be chosen as parents on a weighted basis - chromosomes with a higher fitness are 
+ * more likely to be chosen
+ * 7) The same chromosome may be chosen to mate with itself - no restricions on that.
+ * 
+ * This initial population should be seeded by the user, and all chromosomes are assumed
+ * to be have relevant crossover/mutation operators defined. If there are different classes
+ * of chromosomes available, then there must be crossover operations defined for both of them (wrt each other)
+ * 
+ * 
+ * 
+ */
+public class SimpleGA extends GeneticAlgo{
 
 	private double mutationProb;
 	private double crossoverRate;
+	private int maxHeight;
 	
-    SimpleGA(List<Chromosome> initialPop, double mutationProb, double crossoverRate) {
+    /**
+     * @param initialPop
+     * Initial population. Also determines the population size
+     * @param maxHeight
+     * Maxmimum height to use in simulations. Set to a low value to speed up simulation time at the expense of accuracy
+     * @param mutationProb
+     * Double ranging from 0-1 inclusive. Set to 0 if we do not want mutations, and 1, if we want all children to be mutated
+     * @param crossoverRate
+     * Double ranging from 0-1 inclusive. Set to 0 if we do not want to population to evolve (don't do this), or 1 if we want each 
+     * generation to completely replace its parents. Bear in in mind that high crossover rates may result in the loss of possibly good genes.
+     * It may also result in longer times for each generation.
+     */
+    SimpleGA(List<Chromosome> initialPop, int maxHeight, double mutationProb, double crossoverRate) {
     	super(initialPop);
     	this.mutationProb = mutationProb;
     	this.crossoverRate = crossoverRate;
+    	this.maxHeight = maxHeight;
     }
-
+     
     protected double computeFitnessLevel(Chromosome c) {
-        // Run simulation 10 times, compute the number of lines removed, and take average
+        // Run simulation 5 times, compute the number of lines removed, and take average
         for (int x = 0; x < 5; x++) {
-            // Simulator sim = new Simulator(16); // Force death at height 16.
-        	Simulator sim = new Simulator(16);
-            c.addGameScore(sim.getNumLinesRemoved(c));
+        	Simulator sim = new Simulator(maxHeight); // Force death at maxHeight
+            c.addGameScore(sim.getNumTurnsPassed(c));
         }
         return c.getFitness();
     }
@@ -72,7 +100,6 @@ public class SimpleGA<T extends Chromosome> extends GeneticAlgo<T> {
     }
 
     protected List<Chromosome> mutate(List<Chromosome> children) {
-    	// Mutation probability of 2%.
     	Random rng = new Random();
     	for (Chromosome c : children) {
     		if (rng.nextDouble() < mutationProb) {

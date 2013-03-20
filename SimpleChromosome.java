@@ -1,6 +1,17 @@
 import java.util.Random;
 
 
+/**
+ * Simple Chromosome
+ * 
+ * Evaluation function is the weighted sum of all features. each feature has a range of -0.5 to 0.5
+ * 
+ * Crossover is defined SWAPPING the values of 2 select weights.
+ * 
+ * Mutation is defined as re-randomizing a weight (selected at random)
+ * 
+ *
+ */
 public class SimpleChromosome extends Chromosome {
 
 	public static final int NUM_ATTRIBUTES = 9;

@@ -65,6 +65,9 @@ public abstract class Chromosome implements Comparable<Chromosome>{
         fitness = score;
     }
     
+    
+    // Compares between the fitness of two Chromosomes such that they will be sorted
+    // in DESCENDING order.
     public int compareTo(Chromosome compareChromosome) {
     	if (this.fitness < compareChromosome.fitness)
     		return 1;
