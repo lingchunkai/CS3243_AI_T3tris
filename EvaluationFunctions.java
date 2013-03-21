@@ -308,7 +308,7 @@ public class EvaluationFunctions {
 		int maxWellDep = 0;
 		int col = State.COLS - 1;
 		int[][] resultantField = computeHeuristicField(s, move);
-		int[] top=computeTop(resultantField)
+		int[] top=computeTop(resultantField);
 		
 		for (int x = 0; x < State.COLS; x++) {
 			//if check if the side of the column to see if it is enclosed and does not have 
@@ -340,7 +340,7 @@ public class EvaluationFunctions {
 		int totalWellDep = 0;
 		int col = State.COLS - 1;
 		int[][] resultantField = computeHeuristicField(s, move);
-		int[] top=computeTop(resultantField)
+		int[] top=computeTop(resultantField);
 		
 		for (int x = 0; x < State.COLS; x++) {
 			//if check if the side of the column to see if it is enclosed and does not have 
@@ -411,12 +411,21 @@ public class EvaluationFunctions {
 	//Surface area roughness after executing a move
 	public static int surfaceAreaRoughness(State s, int[] move) {
 		int roughness = 0;
+		int maxTop = 0;
 		int[][] resultantField = computeHeuristicField(s, move);
 		int[] top=computeTop(resultantField);
 		
-		for(int c=0; c<top.length-1; c++)//by column
+		for(int c=0; c<top.length; c++)//by column
 		{
-			roughness+=Math.abs(top[c] - top[c+1]);
+			if(top[c]>maxTop)
+			{
+				maxTop=top[c];
+			}
+		}
+		
+		for(int c=0; c<top.length; c++)//by column
+		{
+			roughness+=Math.abs(maxTop - top[c]);
 		}
 		return roughness;
 	}
