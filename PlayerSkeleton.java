@@ -16,7 +16,7 @@ public class PlayerSkeleton {
     	// double[] d = {-0.454944595225789,-0.31117463749768126,-0.26798448005579933,0.03458328418424961,-0.3654701646392101,0.3390836793124713,-0.40477254493737713};
     	// double[] d = {-0.4980295305135991,-0.4315627025645594,-0.45286302929418853,0.020816590047498806,-0.22605251742078147,-0.3285249035676846,0.20842924213682446,-0.050628747107058,0.49217281372994803};
     	//double[] d = {-0.4074583533555105,-0.39592242146631973,-0.30568475702855313,0.18303328544235653,-0.003916222289412574,0.013483281800154567,0.32167287053488125,-0.4362985461566685,0.4863468144027401};
-    	 double[] d = {-0.30309115806738435,-0.29044940778540884,-0.4214758597880024,0.01149069914198042,-0.1933169214489483,0.17290321163502675,-0.35960939426888217,0.3075533275527662,0.0673396236111129};
+    	 double[] d = new double[]{-0.31435940126625794,-0.21563515333255528,-0.3729786695320991,0.021052304432286117,0.008910294859162615,0.02223342029481823,-0.38886237185861094,0.2137576521904011,0.44813680599822514};
     	Chromosome c = new SimpleChromosome(d);
     	// Chromosome c = new SimpleChromosome();
     	int i = c.pickMove(s);
@@ -25,7 +25,7 @@ public class PlayerSkeleton {
 
     public static void main(String[] args) {
 
-    	
+    	/*
         // UNCOMMENT FOR LEARNING
         List<Chromosome> initialPop = new ArrayList<Chromosome>();
         for (int x = 0; x < 100; x++) { // <------------modify population size here
@@ -38,7 +38,7 @@ public class PlayerSkeleton {
 
         // Number of generations
         learner.Run(1000);
-        
+        */
 
 
         // Remember to remove top part
@@ -52,7 +52,7 @@ public class PlayerSkeleton {
             s.drawNext(0, 0);
 
             try {
-                Thread.sleep(10);
+                Thread.sleep(100);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

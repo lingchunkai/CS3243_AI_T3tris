@@ -303,144 +303,25 @@ public class EvaluationFunctions {
         return count;
     }
 
-	//maximum depth of a well after executing a move
-	public static int maxWellDepth(State s, int[] move) {
-		int maxWellDep = 0;
-		int col = State.COLS - 1;
-		int[][] resultantField = computeHeuristicField(s, move);
-		int[] top=computeTop(resultantField)
-		
-		for (int x = 0; x < State.COLS; x++) {
-			//if check if the side of the column to see if it is enclosed and does not have 
-			if ((x == 0 || top[x - 1] > top[x]) && (x == col || top[x + 1] > top[x])) {
-				int wellDepth = 0;
-				if(x==0)//first column
-				{
-					wellDepth = top[x+1] -top[x];
-				}
-				else if(x==col)//last column
-				{
-					wellDepth = top[x-1] - top[x];
-				}
-				else
-				{
-					wellDepth=Math.min(top[x - 1], top[x + 1])- top[x];
-				}
-				maxWellDep = Math.max(wellDepth, maxWellDep);
-			}
-		}
-		
-		
-		return maxWellDep;
-	}
+    //maximum depth of a well after executing a move
+    public static int maxWellDepth(State s, int[] move) {
+        int max = 0;
+        int[][] resultantField = computeHeuristicField(s, move);
+        return max;
+    }
 
+    //no. of wells after executing a move
+    public static int wellCount(State s, int[] move) {
+        int count = 0;
+        int[][] resultantField = computeHeuristicField(s, move);
+        return count;
+    }
 
-	//maximum depth of a well after executing a move
-	public static int TotalWellDepth(State s, int[] move) {
-		int totalWellDep = 0;
-		int col = State.COLS - 1;
-		int[][] resultantField = computeHeuristicField(s, move);
-		int[] top=computeTop(resultantField)
-		
-		for (int x = 0; x < State.COLS; x++) {
-			//if check if the side of the column to see if it is enclosed and does not have 
-			if ((x == 0 || top[x - 1] > top[x]) && (x == col || top[x + 1] > top[x])) {
-				int wellDepth = 0;
-				if(x==0)//first column
-				{
-					wellDepth = top[x+1] - top[x];
-				}
-				else if(x==col)//last column
-				{
-					wellDepth = top[x-1] - top[x];
-				}
-				else
-				{
-					wellDepth=Math.min(top[x - 1], top[x + 1])- top[x];
-				}
-				totalWellDep += wellDepth;
-			}
-		}
-		
-		
-		return totalWellDep;
-	}	
-
-	//no. of wells after executing a move
-	public static int wellCount(State s, int[] move) {
-		int count = 0;
-		int[][] resultantField = computeHeuristicField(s, move);
-		for (int x = 0; x < State.COLS; x++) {
-			int[] top = resultantField[x];
-			int startCount=0;
-			int depth=0;
-			int wellSpotted=0;
-			
-			for(int y = top.length-1; y>=0; y--)
-			{
-				int cell=s.getField()[y][x];
-				if(cell!=0)//if the top hole is not filled start to count
-				{
-					startCount=1;
-				}
-				
-				if(startCount==1)
-					depth++;
-
-				if(depth>3)
-				{
-					if(cell!=0)
-					{
-						wellSpotted=1;
-					}
-					
-					if(wellSpotted==1)
-					{
-						if(cell==0)
-						{
-							wellSpotted=0;
-							count++;
-						}
-					}
-				}
-			}
-		}
-		return count;
-	}
-
-	//Surface area roughness after executing a move
-	public static int surfaceAreaRoughness(State s, int[] move) {
-		int roughness = 0;
-		int[][] resultantField = computeHeuristicField(s, move);
-		int[] top=computeTop(resultantField);
-		
-		for(int c=0; c<top.length-1; c++)//by column
-		{
-			roughness+=Math.abs(top[c] - top[c+1]);
-		}
-		return roughness;
-	}
-	
-	//Compute top after executing a move
-	private static int[] computeTop(int[][] resultField)
-	{
-		int col=State.COLS;
-		int height=State.ROWS;
-		int[]  top=new int[col];
-		for (int c=0; c<col; c++)
-		{
-			top[c]=0;
-			for(int h=height-1; h>=0; h--)
-			{
-				int cell=resultField[h][c];
-				if(cell!=0)
-				{
-					top[c]=h+1;
-					break;
-				}
-			}
-		}	
-		return top;
-	}
+    //Surface area roughness after executing a move
+    public static int surfaceAreaRoughness(State s, int[] move) {
+        int roughness = 0;
+        int[][] resultantField = computeHeuristicField(s, move);
+        return roughness;
+    }
 }
 
