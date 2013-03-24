@@ -14,9 +14,15 @@ import java.util.Random;
  */
 public class SimpleChromosome extends Chromosome {
 
-	public static final int NUM_ATTRIBUTES = 9;
+	public static final int NUM_ATTRIBUTES = 13;
 	public static double MIN_RANGE = -0.5;
 	public static double MAX_RANGE = 0.5;
+	// Not linearly independant
+	// Minimum_altitude, altitude delta and maximum altitude
+	//
+	
+	// Not used: contact area, min alt, weighted lines cleared, invertedWeightedHoleCount
+	
 	public enum FEATURES {
 		INDEX_NUM_HOLES(0),
 		INDEX_HEIGHT(1),
@@ -25,8 +31,13 @@ public class SimpleChromosome extends Chromosome {
 		INDEX_FILLED_SPOT_COUNT(4),
 		INDEX_DEPTH_HIGHEST_HOLE(5),
 		INDEX_HEIGHT_HIGHEST_HOLE(6),
-		INDEX_NUM_SINKS(7),
-		INDEX_BLOCKADE_COUNT(8);
+		INDEX_BLOCKADE_COUNT(7),
+		INDEX_CONNECTED_HOLE_COUNT(8),
+		INDEX_WEIGHTED_HOLE_COUNT(9),
+		INDEX_MAX_WELL_DEPTH(10),
+		INDEX_TOTAL_WELL_DEPTH(11),
+		INDEX_SURFACE_AREA_ROUGHNESS(12);
+		
 		
 		public final int Value;
 		
@@ -96,50 +107,13 @@ public class SimpleChromosome extends Chromosome {
     	score += weights[FEATURES.INDEX_FILLED_SPOT_COUNT.getCode()] * s.filledSpotCount;
     	score += weights[FEATURES.INDEX_DEPTH_HIGHEST_HOLE.getCode()] * s.blocksAboveHighestHoleCount;
     	score += weights[FEATURES.INDEX_HEIGHT_HIGHEST_HOLE.getCode()] * s.highestHole;
+    	score += weights[FEATURES.INDEX_BLOCKADE_COUNT.getCode()] * s.blockadeCount;
+    	score += weights[FEATURES.INDEX_CONNECTED_HOLE_COUNT.getCode()] * s.connectedHoleCount;
+    	score += weights[FEATURES.INDEX_WEIGHTED_HOLE_COUNT.getCode()] * s.weightedHoleCount;
+    	score += weights[FEATURES.INDEX_MAX_WELL_DEPTH.getCode()] * s.maxWellDepth;
+    	score += weights[FEATURES.INDEX_TOTAL_WELL_DEPTH.getCode()] * s.TotalWellDepth;
+    	score += weights[FEATURES.INDEX_SURFACE_AREA_ROUGHNESS.getCode()] * s.surfaceAreaRoughness;
     	
-        //use Features Class Thx
-//        // Count number of holes
-//        int holes = 0;
-//        for (int x = 0; x < s.COLS; x++) {
-//            for (int y = s.getTop()[x] - 1; y >= 0; y--) {
-//                if (s.getField()[y][x] == 0) {
-//                    holes++;
-//                }
-//            }
-//        }
-//
-//        // Count value of height
-//        int[] top = s.getTop();
-//        int highest = -1;
-//        for (int i : top) {
-//            highest = Math.max(i, highest);
-//        }
-//
-//        int num_wells = 0;
-//        // Count number of wells
-//        for (int x = 0; x < s.COLS; x++) {
-//            int numSidesCovered = 0;
-//
-//            if (x == 0 || (top[x - 1] >= top[x] + 4)) {
-//                numSidesCovered++;
-//            }
-//            if (x == s.COLS - 1 || (top[x + 1] >= top[x] + 4)) {
-//                numSidesCovered++;
-//            }
-//            if (numSidesCovered >= 2) {
-//                num_wells++;
-//            }
-//        }
-//
-//        // Compute delta
-//        int lowest = 1000;
-//        for (int i : top) {
-//            lowest = Math.min(i, lowest);
-//        }
-//        int delta = highest - lowest;
-//
-//        return (double) (highest) * val_height + (double) (holes) * val_hole + (double) (num_wells) * val_well + (double) (delta) * val_delta;
-
         return score;
     }
 

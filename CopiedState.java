@@ -4,7 +4,8 @@ import java.util.Set;
 
 public class CopiedState extends State {
 
-    int simulatedHeight;
+    int simulatedHeight; // Height after which the game is considered to be lost.
+    
     public double maximumAltitude = 0,
             altitudeDelta = 0,
             minimumAltitude = 0,
@@ -65,8 +66,8 @@ public class CopiedState extends State {
     public boolean makeMove(int orient, int slot) {
         //This 2 heuristics depends on the prev state.
         EvaluationFunctions eval = new EvaluationFunctions(this, orient, slot);
-        this.maxContactArea = eval.maximumContactArea();
-        this.weightedLinesCleared = eval.weightedLinesClearScore();
+        //this.maxContactArea = eval.maximumContactArea();
+        //this.weightedLinesCleared = eval.weightedLinesClearScore();
 
         boolean result = super.makeMove(orient, slot);
         ComputeFeatureScores();
