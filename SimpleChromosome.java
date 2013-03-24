@@ -123,4 +123,34 @@ public class SimpleChromosome extends Chromosome {
     	int attributeIndex = (rng.nextInt()%NUM_ATTRIBUTES+NUM_ATTRIBUTES)%NUM_ATTRIBUTES;
     	weights[attributeIndex] = (rng.nextDouble() * (MAX_RANGE - MIN_RANGE)) + MIN_RANGE;
     }
+
+    // Length of the solution vector
+    protected double getLength() {
+    	double sum = 0;
+    	for (int x = 0; x < NUM_ATTRIBUTES; x++) {
+    		sum += weights[x] * weights[x];
+    	}
+    	return Math.sqrt(sum);
+    }
+    
+    // Returns the dot product between 2 vectors
+    protected double dotProduct(double[] v1, double[] v2) {
+    	double sum = 0;
+    	for (int x = 0; x < Math.min(v1.length, v2.length); x++) {
+    		sum += v1[x] * v2[x];
+    	}
+    	return sum;
+    }
+    
+	@Override
+	public double similarityIndex(Chromosome compareChromosome) {
+		SimpleChromosome other = (SimpleChromosome) compareChromosome;
+		double product = dotProduct(weights, other.weights) / getLength() / other.getLength();
+		if (product < -1) product = -1;
+		if (product > 1) product = 1;
+		// Cosine similarity.
+		return Math.acos(product)/Math.PI;
+	}
+    
+    
 }

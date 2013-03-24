@@ -116,4 +116,19 @@ public class SimpleGA extends GeneticAlgo{
         }
         return ret;
     }
+
+	@Override
+	public String toString() {
+    	StringBuilder str = new StringBuilder();
+    	str.append("PopSize " + population.size()+"\n");
+        str.append("BestFitness " + getBest().getFitness()+"\n");
+        str.append("Parameters:\n" + getBest().toString()+"\n");
+        
+        List<Chromosome> pop = population;
+        str.append("POPULATION\n");
+        for (Chromosome c : pop) {
+        	str.append(c.toString()+"\n");
+        }
+        return str.toString();
+	}
 }

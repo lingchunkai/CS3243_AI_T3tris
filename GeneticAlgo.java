@@ -62,4 +62,6 @@ public abstract class GeneticAlgo {
     public List<Chromosome> getPopulation() {
         return population;
     }
+    
+    public abstract String toString();
 }

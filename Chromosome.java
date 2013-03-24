@@ -75,7 +75,9 @@ public abstract class Chromosome implements Comparable<Chromosome>{
     		return 0;
     	
     	return -1;
-    	
     }
+    
+    // Returns how similar 2 chromosomes are. -1 for most unsimilar, and 1 for being the most similar.
+    public abstract double similarityIndex(Chromosome compareChromosome);
 }
 

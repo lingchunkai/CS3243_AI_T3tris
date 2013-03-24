@@ -14,16 +14,7 @@ public class Learner {
         for (int x = 0; x < numGenerations; x++) {
             algo.generateNextGeneration();
             System.out.println("Gen " + x);
-            System.out.println("PopSize " + algo.population.size());
-            System.out.println("BestFitness " + algo.getBest().getFitness());
-            System.out.println("Parameters:\n" + algo.getBest().toString());
-            
-            List<Chromosome> pop = algo.population;
-            System.out.println("POPULATION");
-            for (Chromosome c : pop) {
-            	System.out.println(c.toString());
-            }
-            
+            System.out.println(algo.toString());
             setBestCandidate(algo.getBest());
 
         }
