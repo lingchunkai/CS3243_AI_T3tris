@@ -4,17 +4,17 @@ public class EvaluationFunctions {
     //State s = Current State
     //move = Action
 
-    private int [][]resultantField;
+    private int[][] resultantField;
     private int orientation, slot;
     private State prevState;
-    public EvaluationFunctions(State s, int orientation, int slot)
-    {
+
+    public EvaluationFunctions(State s, int orientation, int slot) {
         this.prevState = s;
         resultantField = this.computeHeuristicField();
         this.orientation = orientation;
         this.slot = slot;
     }
-    
+
     private int[][] cloneField(int[][] source) {
         //Clone a field
         int[][] clonedField = new int[source.length][source[0].length];
@@ -25,7 +25,7 @@ public class EvaluationFunctions {
     }
 
     //Compute c' from c and a..
-    private  int[][] computeHeuristicField() {
+    private int[][] computeHeuristicField() {
         int nextPiece = prevState.getNextPiece();
 
         int newHt = prevState.getTop()[slot] - State.getpBottom()[nextPiece][orientation][0];
@@ -52,13 +52,11 @@ public class EvaluationFunctions {
     //More blocks used, more luck
     public int weightedLinesClearScore() {
         int nextPiece = prevState.getNextPiece();
-        //new height, the top of that particular row - the bottom of that particular piece
-        //- becos 1 = a hole at the bottom
-        int newHt = prevState.getTop()[slot] - State.getpBottom()[nextPiece][orientation][0];
+        int newHt = Integer.MIN_VALUE;
 
-        //for the tromino width, do the same thing
         for (int w = 1; w < State.getpWidth()[nextPiece][orientation]; w++) {
             //favor clearing the top rows first
+            //- becos 1 = a hole at the bottom
             newHt = Math.max(prevState.getTop()[slot + w] - State.getpBottom()[nextPiece][orientation][w], newHt);
         }
 
@@ -73,7 +71,7 @@ public class EvaluationFunctions {
 
             boolean completeRow = true;
             for (int c = 0; c < State.COLS; c++) {
-                 if (resultantField[h][c] == prevState.getTurnNumber()) {
+                if (resultantField[h][c] == prevState.getTurnNumber()) {
                     piecesUsed += 1;
                 }
                 if (resultantField[h][c] == 0) { //if got hole
@@ -91,52 +89,54 @@ public class EvaluationFunctions {
 
     //maximum contact area of a piece after executing a move
     public int maximumContactArea() {//added
-        int count = 0;
+        int contactArea = 0;
         int nextPiece = prevState.getNextPiece();
+        int newHt = Integer.MIN_VALUE;
 
-
-        int newHt = prevState.getTop()[slot] - State.getpBottom()[nextPiece][orientation][0];
-        int[][] currField = prevState.getField();
-        //for the tromino width, do the same thing
         for (int w = 1; w < State.getpWidth()[nextPiece][orientation]; w++) {
             //favor clearing the top rows first
+            //- becos 1 = a hole at the bottom
             newHt = Math.max(prevState.getTop()[slot + w] - State.getpBottom()[nextPiece][orientation][w], newHt);
         }
 
+        int[][] currField = prevState.getField();
         for (int c = 0; c < State.getpWidth()[nextPiece][orientation]; c++) {
+
             for (int h = newHt + State.getpBottom()[nextPiece][orientation][c];
                     h < newHt + State.getpTop()[nextPiece][orientation][c]; h++) {
 
                 if (h >= State.ROWS - 1) {
-                    continue; //GGPOK already, dont consider -.-
+                    break; //ggpok already, dont consider -.-
                 }
-                //get the left, right and bottom sides
+                //get the bottom, left and right sides
                 int bottom = h - 1;
                 int leftSide = c - 1 + slot;
                 int rightSide = c + 1 + slot;
+                
+                if ((bottom >= 0) && (currField[bottom][c + slot] != 0)) {
+                    contactArea += 1; //bottom check
+                }
+                
+                if (leftSide < 0) { // left wall check
+                    contactArea += 1;
+                }
+                if (rightSide >= State.COLS) { //right wall check
+                    contactArea += 1;
+                }
 
-                //bottom check, to see if it touches
-                if ((currField[bottom][c + slot] != 0) && (bottom >= 0)) {
-                    count += 1;
+                if ((leftSide >= 0) && (currField[h][leftSide] != 0)) {
+                    contactArea += 1; //left side check
                 }
-                //left side check to see if it touches
-                if ((currField[h][leftSide] != 0) && (leftSide >= 0)) {
-                    count += 1;
+                
+                if ((rightSide < State.COLS) && (currField[h][rightSide] != 0)) {
+                    contactArea += 1; //right side check
                 }
-                if (leftSide < 0) { //touch wall check
-                    count += 1;
-                }
-                //Right side check to see if it touches
-                if ((currField[h][rightSide] != 0) && (rightSide < State.COLS)) {
-                    count += 1;
-                }
-                if (rightSide >= State.COLS) { //touch wall check
-                    count += 1;
-                }
+
+
             }
-        }
-        return count;
+            //end for h
+        } //end for c
+        return contactArea;
     }
-
 }
 
