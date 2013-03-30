@@ -1,21 +1,18 @@
 import java.util.Arrays;
 import java.util.Random;
 
-
 /**
  * Simple Chromosome
  *
- * Evaluation function is the weighted sum of all features. each feature has a range of -0.5 to 0.5
+ * Evaluation function is the weighted sum of feature values. Each feature has a range of [-0.5, 0.5).
  *
- * Crossover is defined SWAPPING the values of 2 select weights.
+ * Crossover is defined SWAPPING the values of 2 selected weights.
  *
- * Mutation is defined as re-randomizing a weight (selected at random)
- *
- *
+ * Mutation is defined as re-randomizing a weight (selected at random).
  */
 public class SimpleChromosome extends Chromosome {
 
-	public static final int NUM_ATTRIBUTES = 13;
+	public static final int NUM_ATTRIBUTES = 17;
 	public static final double MIN_RANGE = -0.5;
 	public static final double MAX_RANGE = 0.5;
 	// Not linearly independent
@@ -26,7 +23,7 @@ public class SimpleChromosome extends Chromosome {
 
 	private enum Feature {
 		HOLE_COUNT(0),
-		HEIGHT(1),
+		MAX_ALTITUDE(1),
 		WELL_COUNT(2),
 		ALTITUDE_DELTA(3),
 		FILLED_SPOT_COUNT(4),
@@ -37,7 +34,11 @@ public class SimpleChromosome extends Chromosome {
 		WEIGHTED_HOLE_COUNT(9),
 		MAX_WELL_DEPTH(10),
 		TOTAL_WELL_DEPTH(11),
-		SURFACE_AREA_ROUGHNESS(12);
+		SURFACE_AREA_ROUGHNESS(12),
+        CONTACT_AREA(13),
+        MIN_ALTITUDE(14),
+        WEIGHTED_LINES_CLEARED(15),
+        INVERTED_WEIGHTED_HOLE_COUNT(16);
 
 		private final int code;
 
@@ -102,7 +103,7 @@ public class SimpleChromosome extends Chromosome {
     double evaluate(CopiedState s) {
     	double score = 0;
     	score += weights[Feature.HOLE_COUNT.getCode()] * s.holeCount;
-    	score += weights[Feature.HEIGHT.getCode()] * s.maximumAltitude;
+    	score += weights[Feature.MAX_ALTITUDE.getCode()] * s.maximumAltitude;
     	score += weights[Feature.WELL_COUNT.getCode()] * s.wellCount;
     	score += weights[Feature.ALTITUDE_DELTA.getCode()] * s.altitudeDelta;
     	score += weights[Feature.FILLED_SPOT_COUNT.getCode()] * s.filledSpotCount;
@@ -114,6 +115,10 @@ public class SimpleChromosome extends Chromosome {
     	score += weights[Feature.MAX_WELL_DEPTH.getCode()] * s.maxWellDepth;
     	score += weights[Feature.TOTAL_WELL_DEPTH.getCode()] * s.TotalWellDepth;
     	score += weights[Feature.SURFACE_AREA_ROUGHNESS.getCode()] * s.surfaceAreaRoughness;
+        score += weights[Feature.CONTACT_AREA.getCode()] * s.maxContactArea;
+        score += weights[Feature.MIN_ALTITUDE.getCode()] * s.minimumAltitude;
+        score += weights[Feature.WEIGHTED_LINES_CLEARED.getCode()] * s.weightedLinesCleared;
+        score += weights[Feature.INVERTED_WEIGHTED_HOLE_COUNT.getCode()] * s.invertedWeightedHoleCount;
 
         return score;
     }
