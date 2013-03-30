@@ -53,32 +53,39 @@ public class SimpleGA extends GeneticAlgo {
 
     @Override
     protected List<ParentPair> selection() {
-        List<ParentPair> ret = new ArrayList<ParentPair>();
-        int numChildren = (int)((population.size()) * crossoverRate);
-        // Select 2 * children_required chromosomes, use brute force - we should probably optimize here
-        double totalFitness = 0;
+        // Calculate number of parents required. Every parent will create a children.
+        int numParentPairs = (int) ((population.size()) * crossoverRate);
+        List<ParentPair> parentPairs = new ArrayList<ParentPair>(numParentPairs);
+
+        // Brute force weighted selection based on fitness
+        List<Double> totals = new ArrayList<Double>(population.size());
+        double runningTotal = 0;
+
         for (Chromosome c : population) {
-            totalFitness += c.getFitness();
+            runningTotal += c.getFitness();
+            totals.add(runningTotal);
         }
 
-        for (int x = 0; x < numChildren; x++) {
+        for (int i = 0; i < numParentPairs; i++) {
             Chromosome parents[] = new Chromosome[2];
-            for (int y = 0; y < 2; y++) {
-                double rand = Math.random() * totalFitness;
-                double cumulativeSum = 0;
-                parents[y] = null;
-                for (Chromosome c : population) {
-                    cumulativeSum += c.getFitness();
-                    if (cumulativeSum >= rand - 0.0000000000000001) {
-                        parents[y] = c;
+            for (int j = 0; j < 2; j++) {
+                double rand = Math.random() * runningTotal;
+                // TODO: we could do binary search here
+                for (int k = 0; k < totals.size(); k++) {
+                    if (rand < totals.get(k)) {
+                        parents[j] = population.get(k);
                         break;
+                    }
+                    // This should never happen; but be safe anyway.
+                    if (parents[j] == null) {
+                        parents[j] = population.get(population.size() - 1);
                     }
                 }
             }
-            ret.add(new ParentPair(parents[0], parents[1]));
+            parentPairs.add(new ParentPair(parents[0], parents[1]));
         }
 
-        return ret;
+        return parentPairs;
     }
 
     @Override
