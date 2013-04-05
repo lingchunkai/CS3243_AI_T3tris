@@ -12,7 +12,7 @@ import java.util.Random;
  */
 public class SimpleChromosome extends Chromosome {
 
-	public static final int NUM_ATTRIBUTES = 17;
+    public static final int NUM_FEATURES = Feature.values().length;
 	public static final double MIN_RANGE = -0.5;
 	public static final double MAX_RANGE = 0.5;
 	// Not linearly independent
@@ -22,23 +22,12 @@ public class SimpleChromosome extends Chromosome {
 	// Not used: contact area, min alt, weighted lines cleared, invertedWeightedHoleCount
 
 	private enum Feature {
-		HOLE_COUNT(0),
-		MAX_ALTITUDE(1),
-		WELL_COUNT(2),
-		ALTITUDE_DELTA(3),
-		FILLED_SPOT_COUNT(4),
-		DEPTH_HIGHEST_HOLE(5),
-		HEIGHT_HIGHEST_HOLE(6),
-		BLOCKADE_COUNT(7),
-		CONNECTED_HOLE_COUNT(8),
-		WEIGHTED_HOLE_COUNT(9),
-		MAX_WELL_DEPTH(10),
-		TOTAL_WELL_DEPTH(11),
-		SURFACE_AREA_ROUGHNESS(12),
-        CONTACT_AREA(13),
-        MIN_ALTITUDE(14),
-        WEIGHTED_LINES_CLEARED(15),
-        INVERTED_WEIGHTED_HOLE_COUNT(16);
+        // LANDING_HEIGHT(0),
+        LINES_CLEARED(1),
+        ROW_TRANSITIONS(2),
+        COLUMN_TRANSITIONS(3),
+        HOLE_COUNT(4),
+        TOTAL_WELL_DEPTH(5);
 
 		private final int code;
 
@@ -59,8 +48,8 @@ public class SimpleChromosome extends Chromosome {
      * Constructor. Initialises weights with random values.
      */
     public SimpleChromosome() {
-        weights = new double[NUM_ATTRIBUTES];
-        for (int x = 0; x < NUM_ATTRIBUTES; x++) {
+        weights = new double[NUM_FEATURES];
+        for (int x = 0; x < NUM_FEATURES; x++) {
             weights[x] = (random.nextDouble() * (MAX_RANGE - MIN_RANGE)) + MIN_RANGE;
         }
     }
@@ -74,10 +63,10 @@ public class SimpleChromosome extends Chromosome {
     	StringBuilder str = new StringBuilder();
     	str.append("Fitness: " + getFitness()+", Games played: "+numGames+", ");
     	str.append("[");
-    	for (int x = 0; x < NUM_ATTRIBUTES; x++) {
+    	for (int x = 0; x < NUM_FEATURES; x++) {
     		str.append(weights[x]);
 
-    		if (x < NUM_ATTRIBUTES - 1)
+    		if (x < NUM_FEATURES - 1)
     			str.append(",");
     	}
     	str.append("]");
@@ -87,9 +76,9 @@ public class SimpleChromosome extends Chromosome {
     @Override
     Chromosome Crossover(Chromosome other) {
         SimpleChromosome mate = (SimpleChromosome) (other);
-        double [] childWeights = new double[NUM_ATTRIBUTES];
+        double [] childWeights = new double[NUM_FEATURES];
         // We use a purely random approach - the allele could come from either parent with equal prob.
-        for (int x = 0; x < NUM_ATTRIBUTES; x++) {
+        for (int x = 0; x < NUM_FEATURES; x++) {
         	if (random.nextBoolean()) {
         		childWeights[x] = weights[x];
         	} else {
@@ -102,23 +91,12 @@ public class SimpleChromosome extends Chromosome {
     @Override
     double evaluate(CopiedState s) {
     	double score = 0;
-    	score += weights[Feature.HOLE_COUNT.getCode()] * s.holeCount;
-    	score += weights[Feature.MAX_ALTITUDE.getCode()] * s.maximumAltitude;
-    	score += weights[Feature.WELL_COUNT.getCode()] * s.wellCount;
-    	score += weights[Feature.ALTITUDE_DELTA.getCode()] * s.altitudeDelta;
-    	score += weights[Feature.FILLED_SPOT_COUNT.getCode()] * s.filledSpotCount;
-    	score += weights[Feature.DEPTH_HIGHEST_HOLE.getCode()] * s.blocksAboveHighestHoleCount;
-    	score += weights[Feature.HEIGHT_HIGHEST_HOLE.getCode()] * s.highestHole;
-    	score += weights[Feature.BLOCKADE_COUNT.getCode()] * s.blockadeCount;
-    	score += weights[Feature.CONNECTED_HOLE_COUNT.getCode()] * s.connectedHoleCount;
-    	score += weights[Feature.WEIGHTED_HOLE_COUNT.getCode()] * s.weightedHoleCount;
-    	score += weights[Feature.MAX_WELL_DEPTH.getCode()] * s.maxWellDepth;
-    	score += weights[Feature.TOTAL_WELL_DEPTH.getCode()] * s.TotalWellDepth;
-    	score += weights[Feature.SURFACE_AREA_ROUGHNESS.getCode()] * s.surfaceAreaRoughness;
-        score += weights[Feature.CONTACT_AREA.getCode()] * s.maxContactArea;
-        score += weights[Feature.MIN_ALTITUDE.getCode()] * s.minimumAltitude;
-        score += weights[Feature.WEIGHTED_LINES_CLEARED.getCode()] * s.weightedLinesCleared;
-        score += weights[Feature.INVERTED_WEIGHTED_HOLE_COUNT.getCode()] * s.invertedWeightedHoleCount;
+    	// score += weights[Feature.LANDING_HEIGHT.getCode()] * s.landingHeight;
+        score += weights[Feature.LINES_CLEARED.getCode()] * s.linesCleared;
+        score += weights[Feature.ROW_TRANSITIONS.getCode()] * s.rowTransitions;
+        score += weights[Feature.COLUMN_TRANSITIONS.getCode()] * s.columnTransitions;
+        score += weights[Feature.HOLE_COUNT.getCode()] * s.holeCount;
+        score += weights[Feature.TOTAL_WELL_DEPTH.getCode()] * s.TotalWellDepth;
 
         return score;
     }
@@ -126,14 +104,14 @@ public class SimpleChromosome extends Chromosome {
     @Override
     void mutate() {
     	// Randomly choose a feature weight to mutate
-    	int index = random.nextInt(NUM_ATTRIBUTES);
+    	int index = random.nextInt(NUM_FEATURES);
     	weights[index] = (random.nextDouble() * (MAX_RANGE - MIN_RANGE)) + MIN_RANGE;
     }
 
     // Length of the solution vector
     protected double getLength() {
     	double sum = 0;
-    	for (int x = 0; x < NUM_ATTRIBUTES; x++) {
+    	for (int x = 0; x < NUM_FEATURES; x++) {
     		sum += weights[x] * weights[x];
     	}
     	return Math.sqrt(sum);

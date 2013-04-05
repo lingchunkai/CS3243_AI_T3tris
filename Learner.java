@@ -34,7 +34,7 @@ public class Learner {
 
         List<Chromosome> initialPop = new ArrayList<Chromosome>(populationSize);
         for (int x = 0; x < populationSize; x++) {
-            initialPop.add(new BetterChromosome());
+            initialPop.add(new SimpleChromosome());
         }
 
         SimpleGA ga = new SimpleGA(initialPop, 13, 0.10, 0.6);
