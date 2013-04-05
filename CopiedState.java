@@ -6,22 +6,22 @@ public class CopiedState extends State {
 
     int simulatedHeight; // Height after which the game is considered to be lost.
 
-    public double maximumAltitude = 0,
-            altitudeDelta = 0,
-            minimumAltitude = 0,
-            filledSpotCount = 0,
-            highestHole = 0,
-            connectedHoleCount = 0,
-            holeCount = 0,
-            weightedHoleCount = 0,
-            blocksAboveHighestHoleCount = 0,
-            blockadeCount = 0,
-            invertedWeightedHoleCount = 0,
-            maxWellDepth = 0,
-            TotalWellDepth = 0,
-            wellCount = 0,
-            surfaceAreaRoughness = 0,
-            weightedLinesCleared ,
+    public double maximumAltitude,
+            altitudeDelta,
+            minimumAltitude,
+            filledSpotCount,
+            highestHole,
+            connectedHoleCount,
+            holeCount,
+            weightedHoleCount,
+            blocksAboveHighestHoleCount,
+            blockadeCount,
+            invertedWeightedHoleCount,
+            maxWellDepth,
+            TotalWellDepth,
+            wellCount,
+            surfaceAreaRoughness,
+            weightedLinesCleared,
             maxContactArea;
 
     public double rowTransitions;
@@ -59,12 +59,12 @@ public class CopiedState extends State {
 
     private void computeFeatureScores() {
         computeHoleFeatures();
-        computeAltitudeFeatures();
-        computeConnectedHoleFeatures();
-        computeBlockades();
+        // computeAltitudeFeatures();
+        // computeConnectedHoleFeatures();
+        // computeBlockades();
         computeWellFeatures();
-        computeWellCount();
-        computeSurfaceAreaRoughness();
+        // computeWellCount();
+        // computeSurfaceAreaRoughness();
         computeTransitions();
     }
 
