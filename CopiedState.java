@@ -5,31 +5,41 @@ import java.util.Set;
 public class CopiedState extends State {
 
     int simulatedHeight; // Height after which the game is considered to be lost.
-    
-    public double maximumAltitude = 0,
-            altitudeDelta = 0,
-            minimumAltitude = 0,
-            filledSpotCount = 0,
-            highestHole = 0,
-            connectedHoleCount = 0,
-            holeCount = 0,
-            weightedHoleCount = 0,
-            blocksAboveHighestHoleCount = 0,
-            blockadeCount = 0,
-            invertedWeightedHoleCount = 0,
-            maxWellDepth = 0,
-            TotalWellDepth = 0,
-            wellCount = 0,
-            surfaceAreaRoughness = 0,
-            weightedLinesCleared ,
+
+    public double maximumAltitude,
+            altitudeDelta,
+            minimumAltitude,
+            filledSpotCount,
+            highestHole,
+            connectedHoleCount,
+            holeCount,
+            weightedHoleCount,
+            blocksAboveHighestHoleCount,
+            blockadeCount,
+            invertedWeightedHoleCount,
+            maxWellDepth,
+            TotalWellDepth,
+            wellCount,
+            surfaceAreaRoughness,
+            weightedLinesCleared,
             maxContactArea;
+
+    public double rowTransitions;
+    public double columnTransitions;
+    public double linesCleared;
+
+    private int prevFilledSpotCount;
 
     //total no. of heuristic: 16, please let us know if there is any one with
     //not updated, might have missed it
 
 
     CopiedState(State s) {
-        simulatedHeight = ROWS;
+        this(s, ROWS);
+    }
+
+    CopiedState(State s, int perceivedHeight) {
+        simulatedHeight = perceivedHeight;
 
         int[][] curField = getField();
         int[][] stateField = s.getField();
@@ -47,40 +57,49 @@ public class CopiedState extends State {
         nextPiece = s.getNextPiece();
     }
 
-    CopiedState(State s, int perceivedHeight) {
-        this(s);
-        simulatedHeight = perceivedHeight;
-    }
-
-    private void ComputeFeatureScores() {
-        getHolesCountsVariation();
-        getAltitudes();
-        connectedHoles();
-        holesCount();
-        getWellDepth();
-        getwellCount();
-        getsurfaceAreaRoughness();
+    private void computeFeatureScores() {
+        computeHoleFeatures();
+        // computeAltitudeFeatures();
+        // computeConnectedHoleFeatures();
+        // computeBlockades();
+        computeWellFeatures();
+        // computeWellCount();
+        // computeSurfaceAreaRoughness();
+        computeTransitions();
     }
 
     @Override
     public boolean makeMove(int orient, int slot) {
         //This 2 heuristics depends on the prev state.
-        EvaluationFunctions eval = new EvaluationFunctions(this, orient, slot);
+        //EvaluationFunctions eval = new EvaluationFunctions(this, orient, slot);
         //this.maxContactArea = eval.maximumContactArea();
         //this.weightedLinesCleared = eval.weightedLinesClearScore();
 
-        boolean result = super.makeMove(orient, slot);
-        ComputeFeatureScores();
+        // Needed to determine lines cleared
+        prevFilledSpotCount = filledSpots();
+
+        boolean alive = super.makeMove(orient, slot);
+        computeFeatureScores();
         if (maximumAltitude > simulatedHeight) {
-            result = false; // lost
+            alive = false;
             lost = true;
         }
-        return result;
+
+        //Compute lines cleared
+        int deltaSpots = filledSpots() - (prevFilledSpotCount + 4);
+        if (deltaSpots < 0) {
+            assert(deltaSpots % COLS == 0);
+            linesCleared = -(deltaSpots / COLS);
+        } else {
+            linesCleared = 0;
+        }
+
+        return alive;
     }
 
 
     //get hightest,weighted and hole count
-    public void getHolesCountsVariation() {
+    public void computeHoleFeatures() {
         int Holecount = 0;
         int Highesthole = 0;
         int weightedHole = 0;
@@ -97,7 +116,7 @@ public class CopiedState extends State {
                 if (cell == 0) { //is hole
                     Holecount++;
                     //y=height need +1
-                    weightedHole = weightedHole * (y + 1);
+                    weightedHole += (y + 1);
                     InvertedWeightedHoleCount = InvertedWeightedHoleCount + (getTop()[x] - y - 1);
 
                     if (firsthole == true) {
@@ -123,7 +142,7 @@ public class CopiedState extends State {
     }
 
     // Get highest, lowest and altitude deltas
-    private void getAltitudes() {
+    private void computeAltitudeFeatures() {
         int highest = -1, lowest = ROWS + 1;
         for (int i : getTop()) {
             highest = Math.max(i, highest);
@@ -134,7 +153,7 @@ public class CopiedState extends State {
         altitudeDelta = highest - lowest;
     }
 
-    private void connectedHoles() {
+    private void computeConnectedHoleFeatures() {
 
         Set<String> holes = new HashSet<String>();
         int count = 0;
@@ -167,7 +186,7 @@ public class CopiedState extends State {
         connectedHoleCount = count;
     }
 
-    private void holesCount() {
+    private void computeBlockades() {
         blockadeCount = 0;
         int[][] field = getField();
         for (int x = 0; x < COLS; x++) {
@@ -184,7 +203,7 @@ public class CopiedState extends State {
     }
 
     //maximum depth of a well after executing a move
-    private void getWellDepth() {
+    private void computeWellFeatures() {
         int maxWellDep = 0;
         int totalWellDep = 0;
         int col = State.COLS - 1;
@@ -212,7 +231,7 @@ public class CopiedState extends State {
     }
 
     //no. of wells after executing a move
-    private void getwellCount() {
+    private void computeWellCount() {
         int count = 0;
 
         for (int x = 0; x < State.COLS; x++) {
@@ -247,7 +266,7 @@ public class CopiedState extends State {
     }
 
     //Surface area roughness after executing a move
-    private void getsurfaceAreaRoughness() {
+    private void computeSurfaceAreaRoughness() {
         int roughness = 0;
         int maxTop = 0;
 
@@ -264,5 +283,45 @@ public class CopiedState extends State {
         }
         surfaceAreaRoughness = roughness;
         //return roughness;
+    }
+
+    private void computeTransitions() {
+        int rt = 0, ct = 0;
+        for (int i = 0; i < simulatedHeight; i++) {
+            boolean prevOccupied = true;
+            for (int j = 0; j < COLS; j++) {
+                if (prevOccupied != (getField()[i][j] != 0)) {
+                    prevOccupied = (getField()[i][j] != 0);
+                    rt++;
+                }
+            }
+            if (!prevOccupied) rt++;
+        }
+
+        for (int j = 0; j < COLS; j++) {
+            boolean prevOccupied = true;
+            for (int i = 0; i < simulatedHeight; i++) {
+                if (prevOccupied != (getField()[i][j] != 0)) {
+                    prevOccupied = (getField()[i][j] != 0);
+                    ct++;
+                }
+            }
+            // if (!prevOccupied) ct++;
+        }
+
+        rowTransitions = rt;
+        columnTransitions = ct;
+    }
+
+    private int filledSpots() {
+        int count = 0;
+        for (int i = 0; i < simulatedHeight; i++) {
+            for (int j = 0; j < COLS; j++) {
+                if (getField()[i][j] != 0) {
+                    count++;
+                }
+            }
+        }
+        return count;
     }
 }
