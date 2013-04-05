@@ -62,6 +62,7 @@ public class CopiedState extends State {
         computeWellFeatures();
         computeWellCount();
         computeSurfaceAreaRoughness();
+        computeTransitions();
     }
 
     @Override
@@ -266,5 +267,33 @@ public class CopiedState extends State {
         }
         surfaceAreaRoughness = roughness;
         //return roughness;
+    }
+
+    private void computeTransitions() {
+        int rt = 0, ct = 0;
+        for (int i = 0; i < simulatedHeight; i++) {
+            boolean prevOccupied = true;
+            for (int j = 0; j < COLS; j++) {
+                if (prevOccupied != (getField()[i][j] != 0)) {
+                    prevOccupied = (getField()[i][j] != 0);
+                    rt++;
+                }
+            }
+            if (!prevOccupied) rt++;
+        }
+
+        for (int j = 0; j < COLS; j++) {
+            boolean prevOccupied = true;
+            for (int i = 0; i < simulatedHeight; i++) {
+                if (prevOccupied != (getField()[i][j] != 0)) {
+                    prevOccupied = (getField()[i][j] != 0);
+                    ct++;
+                }
+            }
+            // if (!prevOccupied) ct++;
+        }
+
+        rowTransitions = rt;
+        columnTransitions = ct;
     }
 }
