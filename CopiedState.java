@@ -99,7 +99,7 @@ public class CopiedState extends State {
                 if (cell == 0) { //is hole
                     Holecount++;
                     //y=height need +1
-                    weightedHole = weightedHole * (y + 1);
+                    weightedHole += (y + 1);
                     InvertedWeightedHoleCount = InvertedWeightedHoleCount + (getTop()[x] - y - 1);
 
                     if (firsthole == true) {
