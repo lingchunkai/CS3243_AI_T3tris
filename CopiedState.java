@@ -26,6 +26,9 @@ public class CopiedState extends State {
 
     public double rowTransitions;
     public double columnTransitions;
+    public double linesCleared;
+
+    private int prevFilledSpotCount;
 
     //total no. of heuristic: 16, please let us know if there is any one with
     //not updated, might have missed it
@@ -68,17 +71,30 @@ public class CopiedState extends State {
     @Override
     public boolean makeMove(int orient, int slot) {
         //This 2 heuristics depends on the prev state.
-        EvaluationFunctions eval = new EvaluationFunctions(this, orient, slot);
+        //EvaluationFunctions eval = new EvaluationFunctions(this, orient, slot);
         //this.maxContactArea = eval.maximumContactArea();
         //this.weightedLinesCleared = eval.weightedLinesClearScore();
 
-        boolean result = super.makeMove(orient, slot);
+        // Needed to determine lines cleared
+        prevFilledSpotCount = filledSpots();
+
+        boolean alive = super.makeMove(orient, slot);
         computeFeatureScores();
         if (maximumAltitude > simulatedHeight) {
-            result = false; // lost
+            alive = false;
             lost = true;
         }
-        return result;
+
+        //Compute lines cleared
+        int deltaSpots = filledSpots() - (prevFilledSpotCount + 4);
+        if (deltaSpots < 0) {
+            assert(deltaSpots % COLS == 0);
+            linesCleared = -(deltaSpots / COLS);
+        } else {
+            linesCleared = 0;
+        }
+
+        return alive;
     }
 
 
@@ -295,5 +311,17 @@ public class CopiedState extends State {
 
         rowTransitions = rt;
         columnTransitions = ct;
+    }
+
+    private int filledSpots() {
+        int count = 0;
+        for (int i = 0; i < simulatedHeight; i++) {
+            for (int j = 0; j < COLS; j++) {
+                if (getField()[i][j] != 0) {
+                    count++;
+                }
+            }
+        }
+        return count;
     }
 }
