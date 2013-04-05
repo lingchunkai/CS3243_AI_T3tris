@@ -5,7 +5,7 @@ import java.util.Set;
 public class CopiedState extends State {
 
     int simulatedHeight; // Height after which the game is considered to be lost.
-    
+
     public double maximumAltitude = 0,
             altitudeDelta = 0,
             minimumAltitude = 0,
@@ -29,7 +29,11 @@ public class CopiedState extends State {
 
 
     CopiedState(State s) {
-        simulatedHeight = ROWS;
+        this(s, ROWS);
+    }
+
+    CopiedState(State s, int perceivedHeight) {
+        simulatedHeight = perceivedHeight;
 
         int[][] curField = getField();
         int[][] stateField = s.getField();
@@ -45,11 +49,6 @@ public class CopiedState extends State {
         }
 
         nextPiece = s.getNextPiece();
-    }
-
-    CopiedState(State s, int perceivedHeight) {
-        this(s);
-        simulatedHeight = perceivedHeight;
     }
 
     private void ComputeFeatureScores() {
