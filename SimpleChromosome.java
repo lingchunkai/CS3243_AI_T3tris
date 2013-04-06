@@ -22,7 +22,7 @@ public class SimpleChromosome extends Chromosome {
 	// Not used: contact area, min alt, weighted lines cleared, invertedWeightedHoleCount
 
 	private enum Feature {
-        // LANDING_HEIGHT(0),
+        LANDING_HEIGHT(0),
         LINES_CLEARED(1),
         ROW_TRANSITIONS(2),
         COLUMN_TRANSITIONS(3),
@@ -91,7 +91,7 @@ public class SimpleChromosome extends Chromosome {
     @Override
     double evaluate(CopiedState s) {
     	double score = 0;
-    	// score += weights[Feature.LANDING_HEIGHT.getCode()] * s.landingHeight;
+    	score += weights[Feature.LANDING_HEIGHT.getCode()] * s.landingHeight;
         score += weights[Feature.LINES_CLEARED.getCode()] * s.linesCleared;
         score += weights[Feature.ROW_TRANSITIONS.getCode()] * s.rowTransitions;
         score += weights[Feature.COLUMN_TRANSITIONS.getCode()] * s.columnTransitions;

@@ -27,6 +27,7 @@ public class CopiedState extends State {
     public double rowTransitions;
     public double columnTransitions;
     public double linesCleared;
+    public double landingHeight;
 
     private int prevFilledSpotCount;
 
@@ -39,7 +40,7 @@ public class CopiedState extends State {
     }
 
     CopiedState(State s, int perceivedHeight) {
-        simulatedHeight = perceivedHeight;
+        simulatedHeight = Math.min(ROWS, perceivedHeight);
 
         int[][] curField = getField();
         int[][] stateField = s.getField();
@@ -77,14 +78,16 @@ public class CopiedState extends State {
 
         // Needed to determine lines cleared
         prevFilledSpotCount = filledSpots();
-
+        computeLandingHeight(orient, slot);
+        
         boolean alive = super.makeMove(orient, slot);
         computeFeatureScores();
         if (maximumAltitude > simulatedHeight) {
             alive = false;
             lost = true;
         }
-
+    	
+        
         //Compute lines cleared
         int deltaSpots = filledSpots() - (prevFilledSpotCount + 4);
         if (deltaSpots < 0) {
@@ -98,7 +101,20 @@ public class CopiedState extends State {
     }
 
 
-    //get hightest,weighted and hole count
+    
+    private void computeLandingHeight(int orient, int slot) {
+		// Adapted from Bryan's code 
+    	//height if the first column makes contact
+        int height = getTop()[slot] - getpBottom()[nextPiece][orient][0];
+        //for each column beyond the first in the piece
+        for (int c = 1; c < pWidth[nextPiece][orient]; c++) {
+            height = Math.max(height, getTop()[slot + c] - getpBottom()[nextPiece][orient][c]);
+        }
+        landingHeight = height + (double)(getpHeight()[nextPiece][orient]/2);
+    	
+	}
+
+	//get hightest,weighted and hole count
     public void computeHoleFeatures() {
         int Holecount = 0;
         int Highesthole = 0;
