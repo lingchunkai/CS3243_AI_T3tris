@@ -140,14 +140,7 @@ public class CopiedState{
         return lost;
     }
     
-    public int getRowsCleared() {
-        return cleared;
-    }
-
-    public int getTurnNumber() {
-        return turn;
-    }
-
+    
     
     public void makeMove(int move) {
         makeMove(legalMoves[nextPiece][move]);
@@ -249,17 +242,7 @@ public class CopiedState{
             lost = true;
         }
     	
-        
-        //Compute lines cleared
-        int deltaSpots = filledSpots() - (prevFilledSpotCount + 4);
-        if (deltaSpots < 0) {
-            assert(deltaSpots % COLS == 0);
-            linesCleared = -(deltaSpots / COLS);
-        } else {
-            linesCleared = 0;
-        }
-
-        return alive;
+         return alive;
     }
 
 
@@ -533,7 +516,7 @@ public class CopiedState{
             top[slot + c] = height + pTop[nextPiece][orient][c];
         }
 
-        int rowsCleared = 0;
+        linesCleared = 0;
 
         //check for full rows - starting at the top
         for (int r = height + pHeight[nextPiece][orient] - 1; r >= height; r--) {
@@ -547,7 +530,7 @@ public class CopiedState{
             }
             //if the row was full - remove it and slide above stuff down
             if (full) {
-                rowsCleared++;
+                linesCleared++;
                 cleared++;
                 //for each column
                 for (int c = 0; c < COLS; c++) {

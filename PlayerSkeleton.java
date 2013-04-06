@@ -64,13 +64,13 @@ public class PlayerSkeleton {
     	
     	// After porting:
     	double[] d = {-4.5001588, 3.4181268, -3.2178882, -9.3486953, -7.8992654, -3.3855972};
-    	for (int i = 0; i < 200; i++) {
+    	for (int i = 0; i < 1; i++) {
     		Simulator s = new Simulator(100);
     		int k = s.getNumLinesRemoved(new BetterChromosome(d));
     		sum += k;
     		System.out.println(k);
     	}
-    	System.out.println((double)(sum)/200);
+    	System.out.println((double)(sum)/1);
     	
     	
     	// SHOW GAME PART
