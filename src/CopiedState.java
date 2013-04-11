@@ -1,7 +1,3 @@
-
-import java.util.HashSet;
-import java.util.Set;
-
 public class CopiedState{
 
 	// START COPIED FROM BRYAN
@@ -11,10 +7,10 @@ public class CopiedState{
     public boolean lost = false;
     public TLabel label;
     //current turn
-    private int turn = 0;
-    private int cleared = 0;
-    //each square in the grid - int means empty - other values mean the turn it was placed
-    private int[][] field = new int[ROWS][COLS];
+    // each square in the grid - int means empty - other values mean the turn it was placed
+    // private int[][] field = new int[ROWS][COLS];
+    // private int[][] field;
+    private Integer[] fieldmask = new Integer[ROWS];
     //top row+1 of each column
     //0 means empty
     private int[] top = new int[COLS];
@@ -111,7 +107,7 @@ public class CopiedState{
     };
 
     //initialize legalMoves
-    {
+    static {
         //for each piece type
         for (int i = 0; i < N_PIECES; i++) {
             //figure number of legal moves
@@ -188,24 +184,115 @@ public class CopiedState{
     //not updated, might have missed it
 
 
+
     CopiedState(State s) {
         this(s, ROWS);
     }
-
-    CopiedState(State s, int perceivedHeight) {
-        simulatedHeight = Math.min(ROWS, perceivedHeight);
-
-        
-        int[][] stateField = s.getField();
-        for (int y = 0; y < stateField.length; y++) {
-            System.arraycopy(stateField[y], 0, field[y], 0, stateField[y].length);
-        }
-       
-        // Copy Top
-        System.arraycopy(s.getTop(), 0, top, 0, s.getTop().length);
-        
-        nextPiece = s.getNextPiece();
+    boolean CellOccupied(Integer[] bitmask, int y,int x)//y=height//x=left
+    {
+        return ((bitmask[y] & (1<<x))!=0);
+//        if((bitmask[y] & (1<<x))==0)
+//        {
+//            return false;
+//        }
+//        else
+//            return true;
     }
+    
+    void OffBit(Integer[] bitmask,int  y, int x)
+    {
+        bitmask[y] = bitmask[y] & ~(1<<x);
+    }
+    
+    void OnBit(Integer[] bitmask,int  y, int x)
+    {
+        bitmask[y] = bitmask[y] | (1<<x);
+    }
+    
+    void Bit(Integer[] bitmask,int  y, int x ,boolean b)
+    {
+        if(b)
+           OnBit(bitmask,y,x);
+        else
+            OffBit(bitmask,y,x);
+    }
+    
+    static Integer[] convert_TO_BIT(State s)
+    {
+        Integer[] bitmask=new Integer[21];
+        int[][] stateField = s.getField();
+         for (int y = 0; y <  21; y++) {// stateField.length; y++) {
+            Integer curmask=0;
+            for(int x=0;x<stateField[y].length;x++)
+            {
+                
+                if(stateField[y][x] > 0)
+                {
+                    int bit = 1<<(x);
+                    //bit << x;//(stateField[y].length - x);
+                    curmask = curmask | bit;
+                }
+            }
+            
+            bitmask[y] = curmask;
+            //System.arraycopy(stateField[y], 0, field[y], 0, stateField[y].length);
+        }
+         
+         return bitmask;
+    }
+    
+    int[][] convert_TO_BIT2(Integer[] inc)
+    {
+        
+        int[][] stateField = new int[21][10];
+         for (int y = 0; y <  inc.length; y++) {// stateField.length; y++) {
+            //Integer curmask=0;
+            for(int x=0;x<10;x++)
+            {
+                
+                //boolean a = ((inc[y] & (1<<(x)))==1);
+                     stateField[y][x] = (inc[y] & (1<<(x)));
+                
+            }
+            
+            //bitmask[y] = curmask;
+            //System.arraycopy(stateField[y], 0, field[y], 0, stateField[y].length);
+        }
+         
+         return stateField;
+    }
+    
+	CopiedState(State s, int perceivedHeight) {
+		simulatedHeight = Math.min(ROWS, perceivedHeight);
+
+		int t = 0;
+
+		for (int i = 0; i < s.getTop().length; i++) {
+			t = Math.max(t, s.getTop()[i]);
+		}
+
+		fieldmask = convert_TO_BIT(s);
+		
+		System.arraycopy(s.getTop(), 0, top, 0, s.getTop().length);
+
+		nextPiece = s.getNextPiece();
+	}
+    
+	CopiedState(State s, Integer[] field) {
+		simulatedHeight = ROWS;
+
+		int t = 0;
+
+		for (int i = 0; i < s.getTop().length; i++) {
+			t = Math.max(t, s.getTop()[i]);
+		}
+
+		fieldmask = field.clone();
+
+		System.arraycopy(s.getTop(), 0, top, 0, s.getTop().length);
+
+		nextPiece = s.getNextPiece();
+	}
 
     private void computeFeatureScores() {
         computeHoleFeatures();
@@ -217,7 +304,6 @@ public class CopiedState{
         // computeSurfaceAreaRoughness();
         computeTransitions();
     }
-
     public boolean makeMove(int orient, int slot) {
         //This 2 heuristics depends on the prev state.
         //EvaluationFunctions eval = new EvaluationFunctions(this, orient, slot);
@@ -272,9 +358,9 @@ public class CopiedState{
             boolean firsthole = true;
             int colblockcount = 0;
             for (int y = top[x] - 2; y >= 0; y--) {
-                int cell = field[y][x];
+                boolean cell = CellOccupied(fieldmask,y,x);
 
-                if (cell == 0) { //is hole
+                if (!cell) { //is hole
                     Holecount++;
                     //y=height need +1
                     weightedHole += (y + 1);
@@ -402,8 +488,8 @@ public class CopiedState{
             int wellSpotted = 0;
 
             for (int y = top.length - 1; y >= 0; y--) {
-                int cell = field[y][x];
-                if (cell != 0) { //if the top hole is not filled start to count
+                boolean cell = CellOccupied(fieldmask,y,x);
+                if (cell) { //if the top hole is not filled start to count
                     startCount = 1;
                 }
 
@@ -411,11 +497,11 @@ public class CopiedState{
                     depth++;
                 }
                 if (depth > 3) {
-                    if (cell != 0) {
+                    if (cell) {
                         wellSpotted = 1;
                     }
                     if (wellSpotted == 1) {
-                        if (cell == 0) {
+                        if (!cell) {
                             wellSpotted = 0;
                             count++;
                         }
@@ -451,8 +537,8 @@ public class CopiedState{
         for (int i = 0; i < simulatedHeight; i++) {
             boolean prevOccupied = true;
             for (int j = 0; j < COLS; j++) {
-                if (prevOccupied != (field[i][j] != 0)) {
-                    prevOccupied = (field[i][j] != 0);
+                if (prevOccupied != (CellOccupied(fieldmask,i,j))) {
+                    prevOccupied = (CellOccupied(fieldmask,i,j));
                     rt++;
                 }
             }
@@ -462,8 +548,8 @@ public class CopiedState{
         for (int j = 0; j < COLS; j++) {
             boolean prevOccupied = true;
             for (int i = 0; i < simulatedHeight; i++) {
-                if (prevOccupied != (field[i][j] != 0)) {
-                    prevOccupied = (field[i][j] != 0);
+                if (prevOccupied != (CellOccupied(fieldmask,i,j))) {
+                    prevOccupied = (CellOccupied(fieldmask,i,j));
                     ct++;
                 }
             }
@@ -478,7 +564,7 @@ public class CopiedState{
         int count = 0;
         for (int i = 0; i < simulatedHeight; i++) {
             for (int j = 0; j < COLS; j++) {
-                if (field[i][j] != 0) {
+                if (CellOccupied(fieldmask,i,j)) {
                     count++;
                 }
             }
@@ -487,7 +573,6 @@ public class CopiedState{
     }
     
     public boolean copiedMakeMove(int orient, int slot) {
-        turn++;
         //height if the first column makes contact
         int height = top[slot] - pBottom[nextPiece][orient][0];
         //for each column beyond the first in the piece
@@ -501,13 +586,15 @@ public class CopiedState{
             return false;
         }
 
-
+//CellOccupied(fieldmask,i,j)
+        //OnBit(fieldmask,h,i+1)
         //for each column in the piece - fill in the appropriate blocks
         for (int i = 0; i < pWidth[nextPiece][orient]; i++) {
 
             //from bottom to top of brick
             for (int h = height + pBottom[nextPiece][orient][i]; h < height + pTop[nextPiece][orient][i]; h++) {
-                field[h][i + slot] = turn;
+                OnBit(fieldmask,h,i+slot);
+                //field[h][i + slot] = turn;
             }
         }
 
@@ -523,7 +610,7 @@ public class CopiedState{
             //check all columns in the row
             boolean full = true;
             for (int c = 0; c < COLS; c++) {
-                if (field[r][c] == 0) {
+                if (!CellOccupied(fieldmask,r,c)) {
                     full = false;
                     break;
                 }
@@ -531,17 +618,19 @@ public class CopiedState{
             //if the row was full - remove it and slide above stuff down
             if (full) {
                 linesCleared++;
-                cleared++;
                 //for each column
                 for (int c = 0; c < COLS; c++) {
 
                     //slide down all bricks
                     for (int i = r; i < top[c]; i++) {
-                        field[i][c] = field[i + 1][c];
+                       // field[i][c] = field[i + 1][c];
+                        Bit(fieldmask,i,c,CellOccupied(fieldmask,i+1,c)) ;
+                        
                     }
                     //lower the top
                     top[c]--;
-                    while (top[c] >= 1 && field[top[c] - 1][c] == 0) {
+                    //while (top[c] >= 1 && field[top[c] - 1][c] == 0) {
+                    while (top[c] >= 1 && !CellOccupied(fieldmask,top[c] - 1,c)) {
                         top[c]--;
                     }
                 }
@@ -552,5 +641,4 @@ public class CopiedState{
         return true;
     }
 }
-
 

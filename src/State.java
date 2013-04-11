@@ -235,8 +235,6 @@ public class State {
             top[slot + c] = height + pTop[nextPiece][orient][c];
         }
 
-        int rowsCleared = 0;
-
         //check for full rows - starting at the top
         for (int r = height + pHeight[nextPiece][orient] - 1; r >= height; r--) {
             //check all columns in the row
@@ -249,7 +247,6 @@ public class State {
             }
             //if the row was full - remove it and slide above stuff down
             if (full) {
-                rowsCleared++;
                 cleared++;
                 //for each column
                 for (int c = 0; c < COLS; c++) {

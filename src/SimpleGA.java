@@ -42,14 +42,32 @@ public class SimpleGA extends GeneticAlgo {
     }
 
     @Override
-    protected double computeFitnessLevel(Chromosome c) {
-        // Run simulation 5 times, compute the number of lines removed, and take average
-        for (int x = 0; x < 5; x++) {
-        	Simulator sim = new Simulator(maxHeight); // Force death at maxHeight
-            c.addGameScore(sim.getNumTurnsPassed(c));
-        }
-        return c.getFitness();
+    protected void computeFitnessLevel(Chromosome c,List<Thread> threads, int n) {
+            Runnable task = new MyRunnable(c, maxHeight, n);
+            Thread worker = new Thread(task);
+            worker.start();
+            threads.add(worker);
+
+            //computeFitnessLevel(c, 5);
+    	//return 0;
     }
+//
+//    protected void computeFitnessLevel(Chromosome c) {
+//    
+//            computeFitnessLevel(c, 5);
+//    	//return 0;
+//    }
+//    
+//    protected void computeFitnessLevel(Chromosome c, int n) {
+//        // Run simulation 5 times, compute the number of lines removed, and take average
+//        for (int x = 0; x < n; x++) {
+//        	Simulator sim = new Simulator(maxHeight); // Force death at maxHeight
+//            c.addGameScore(sim.getNumTurnsPassed(c));
+//        }
+//        //return c.getFitness();
+//    }
+
+    
 
     @Override
     protected List<ParentPair> selection() {
@@ -92,13 +110,21 @@ public class SimpleGA extends GeneticAlgo {
     protected List<Chromosome> acceptance(List<Chromosome> children) {
         // To maintain the population size, we remove the weakest parents.
     	int numParentsRequired = population.size() - children.size();
-    	ArrayList<Chromosome> l = new ArrayList<Chromosome>();
     	Collections.sort(population);
     	List<Chromosome> oldPopSelected = population.subList(0, numParentsRequired);
     	// Retest all the old guard
+
+        List<Thread> threads = new ArrayList<Thread>();
     	for (Chromosome c : oldPopSelected) {
-    		computeFitnessLevel(c);
+    		//computeFitnessLevel(c, 1);
+            Runnable task = new MyRunnable(c, maxHeight, 1);
+            Thread worker = new Thread(task);
+            worker.start();
+            threads.add(worker);
     	}
+
+        waitTillDone(threads);
+        
     	children.addAll(oldPopSelected);
     	Collections.sort(children);
     	return children;
@@ -125,17 +151,23 @@ public class SimpleGA extends GeneticAlgo {
     }
 
 	@Override
+	protected List<Chromosome> filter(List<Chromosome> children) {
+		return children;
+	}
+
+	@Override
 	public String toString() {
     	StringBuilder str = new StringBuilder();
     	str.append("PopSize " + population.size() + "\n");
-        str.append("BestFitness " + getBest().getFitness() + "\n");
-        str.append("Parameters:\n" + getBest().toString() + "\n");
 
         List<Chromosome> pop = population;
         str.append("POPULATION\n");
         for (Chromosome c : pop) {
         	str.append(c.toString() + "\n");
         }
+        
+        str.append("Best:\n" + getBest().toString() + "\n");
+        
         return str.toString();
 	}
 }

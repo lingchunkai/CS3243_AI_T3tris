@@ -29,15 +29,15 @@ public class Learner {
     }
 
     public static void main(String[] args) {
-        int populationSize = 100;
-        int numGenerations = 1000;
+        int populationSize = 50;
+        int numGenerations = 100;
 
         List<Chromosome> initialPop = new ArrayList<Chromosome>(populationSize);
         for (int x = 0; x < populationSize; x++) {
-            initialPop.add(new SimpleChromosome());
+            initialPop.add(new BetterChromosome());
         }
 
-        SimpleGA ga = new SimpleGA(initialPop, 13, 0.10, 0.6);
+        SimpleGA ga = new ClearSimilaritiesGA(initialPop, 13, 0.10, 0.6);
 
         Learner learner = new Learner(ga);
         learner.Run(numGenerations);

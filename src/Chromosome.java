@@ -4,7 +4,6 @@ import java.util.*;
 
 public abstract class Chromosome implements Comparable<Chromosome>{
 
-    static private Chromosome bestCandidate = null;
     private double fitness = 0;
     protected double numGames = 0;
     
@@ -26,9 +25,11 @@ public abstract class Chromosome implements Comparable<Chromosome>{
     public int pickMove(State s) {
         double bestScore = Double.NEGATIVE_INFINITY;
         int bestMoveIndex = 1;
+        Integer[] field = CopiedState.convert_TO_BIT(s);
         for (int x = 0; x < s.legalMoves().length; x++) {
             // Choose the move with the best evaluation
-            CopiedState newState = new CopiedState(s);
+            CopiedState newState = new CopiedState(s, field);
+        	
             newState.makeMove(x);
             if (newState.lost) continue;	// Avoid losing at all costs.
             double score = evaluate(newState);

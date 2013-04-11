@@ -6,6 +6,8 @@ import java.util.Random;
  *
  */
 public class BetterChromosome extends SimpleChromosome {
+	
+	private static final Random r = new Random();
 
 	public BetterChromosome(double[] new_weights) {
 		super(new_weights);
@@ -31,12 +33,17 @@ public class BetterChromosome extends SimpleChromosome {
         // We use a purely random approach - the allele could come from either parent with equal prob.
         for (int x = 0; x < NUM_FEATURES; x++) {
         	// Figure a good crossover point - the index of the bit where the second chromosome starts
-        	int crossPoint = new Random().nextInt(31); // We must have at least one bit for the left-side chromosome
+        	int crossPoint = r.nextInt(31); // We must have at least one bit for the left-side chromosome
         	int thisWeight = MapToInt(weights[x]);
         	int otherWeight = MapToInt(mate.weights[x]);
 
         	int bitMask = (1<<(crossPoint+1))-1;
-        	new_weights[x] = MapToDouble((otherWeight & bitMask) ^ (thisWeight & (~bitMask)));
+        	
+        	if (r.nextBoolean()) {
+        		new_weights[x] = MapToDouble((otherWeight & bitMask) ^ (thisWeight & (~bitMask)));
+        	} else {
+        		new_weights[x] = MapToDouble((thisWeight & bitMask) ^ (otherWeight & (~bitMask)));        		
+        	}
 
         }
         return new BetterChromosome(new_weights);

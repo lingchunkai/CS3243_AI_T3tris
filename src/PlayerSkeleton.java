@@ -1,5 +1,3 @@
-import java.util.*;
-
 public class PlayerSkeleton {
 
     //implement this function to have a working system
@@ -27,31 +25,15 @@ public class PlayerSkeleton {
     	// double[] d = {-0.46164799712675064,0.27910540382336146,-0.2100060469051851,0.21861862936924148,-0.09316840236688423,0.04856861687664349,-0.4478849651980609,-0.3356909471730194,-0.06496214892946284,-0.46788501598308097,0.09449814194557171,-0.3435484691725804,-0.10406772727336161};
     	//double[] d = {-0.491631364911623,0.31781579638729607,-0.12885111366810792,0.13903961360409833,-0.05229998591928742,-0.05826996618801261,-0.43541223506229565,0.11758260783626817,-0.32091589217116867,0.3168573830355226,-0.1655267470821397,-0.22031709259390697,-0.11369647160810253};
     	//double[] d = {-0.49163513304276163,0.3200104179885287,-0.012245116528237732,0.13906195789531894,-0.08375121866527535,-0.05826233679347781,-0.4061055038618415,-0.054260433909604555,-0.46156522257326416,0.0980788262552017,-0.05774901367619123,-0.3284408551773247,-0.11760918126330205};
-    	double[] d = {-4.5001588, 3.4181268, -3.2178882, -9.3486953, -7.8992654, -3.3855972};
+    	// double[] d = {-4.5001588, 3.4181268, -3.2178882, -9.3486953, -7.8992654, -3.3855972};
+    	double[] d = {-0.15060087649645326,0.45149267648881897,-0.25309745024568286,-0.39253263543012207,-0.2982136983416107,-0.13531026366879711};
     	Chromosome c = new BetterChromosome(d);
     	int i = c.pickMove(s);
         return i;
     }
 
     public static void main(String[] args) {
-
     	/*
-        // UNCOMMENT FOR LEARNING
-        List<Chromosome> initialPop = new ArrayList<Chromosome>();
-        for (int x = 0; x < 100; x++) { // <------------modify population size here
-        	initialPop.add(new BetterChromosome());
-        }
-        SimpleGA ga = new ClearSimilaritiesGA(initialPop, 13, 0.10, 0.6);
-        Learner learner = new Learner(ga);
-
-        System.out.println("Learner Made");
-
-        // Number of generations
-        learner.Run(1000);
-        */
-    	
-    	
-    	
     	// VERITIFICATION PART
     	int sum = 0;
     	// REsults 0
@@ -63,25 +45,28 @@ public class PlayerSkeleton {
     	//double[] d = {-0.46189285347326325,0.26909636788493785,-0.20997259752357966,0.21794615486541113,-0.09289373671305073,0.06028707072152151,-0.4478925927299506,-0.32006560304205195,-0.2055788052759966,-0.46655273296244104,0.09449814194557171,-0.3827330255334885,-0.10431952337004224};
     	
     	// After porting:
-    	double[] d = {-4.5001588, 3.4181268, -3.2178882, -9.3486953, -7.8992654, -3.3855972};
-    	for (int i = 0; i < 1; i++) {
+    	//double[] d = {-4.5001588, 3.4181268, -3.2178882, -9.3486953, -7.8992654, -3.3855972};
+    	double[] d = {-0.10657061061993833,0.20361954705026908,-0.15636924731376078,-0.48787494562001665,-0.376616884896819,-0.27628009849054747};
+    	for (int i = 0; i < 100; i++) {
     		Simulator s = new Simulator(100);
     		int k = s.getNumLinesRemoved(new BetterChromosome(d));
     		sum += k;
     		System.out.println(k);
     	}
     	System.out.println((double)(sum)/1);
-    	
+    	*/
     	
     	// SHOW GAME PART
-		/*
+		
+    	
         // Remember to remove top part
         State s = new State();
         new TFrame(s);
         PlayerSkeleton p = new PlayerSkeleton();
         while (!s.hasLost()) {
-            System.out.println("------------------------------------------------------------------------------------------");
-            s.makeMove(p.pickMove(s, s.legalMoves()));
+            //System.out.println("------------------------------------------------------------------------------------------");
+            for (int i = 0; i < 50 && !s.hasLost(); i++)
+            	s.makeMove(p.pickMove(s, s.legalMoves()));
             s.draw();
             s.drawNext(0, 0);
 
@@ -92,6 +77,6 @@ public class PlayerSkeleton {
             }
         }
         System.out.println("You have completed " + s.getRowsCleared() + " rows.");
-        */
+        
     }
 }

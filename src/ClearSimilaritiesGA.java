@@ -1,4 +1,3 @@
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,11 +23,11 @@ public class ClearSimilaritiesGA extends SimpleGA {
 		return sumSimilarity / maxSimilarity;
 	}
 	
-	@Override
-	protected double computeFitnessLevel(Chromosome c) {
-		// TODO Auto-generated method stub
-		return super.computeFitnessLevel(c);
-	}
+//	@Override
+//	protected void computeFitnessLevel(Chromosome c) {
+//		// TODO Auto-generated method stub
+//		super.computeFitnessLevel(c);
+//	}
 
 	@Override
 	protected List<ParentPair> selection() {
@@ -37,8 +36,7 @@ public class ClearSimilaritiesGA extends SimpleGA {
 	}
 
 	@Override
-	protected List<Chromosome> acceptance(List<Chromosome> children) {
-		int numChildren = children.size();
+	protected List<Chromosome> filter(List<Chromosome> children) {
 		List<Chromosome> newChildren = new ArrayList<Chromosome>();
 		int repeats = 0;
 		// Remove children which are too similar
@@ -67,7 +65,6 @@ public class ClearSimilaritiesGA extends SimpleGA {
 				try {
 					// Add replacement freshie and collect its fitness
 					Chromosome newGuy = c.getClass().getConstructor().newInstance();
-					this.computeFitnessLevel(newGuy);
 					newChildren.add(newGuy);
 				} catch (java.lang.Exception e) {
 					e.printStackTrace();
@@ -77,7 +74,7 @@ public class ClearSimilaritiesGA extends SimpleGA {
 		
 		System.out.println("Repeats: " + repeats);
 		
-		return super.acceptance(newChildren);
+		return newChildren;
 	}
 
 	@Override
@@ -90,6 +87,11 @@ public class ClearSimilaritiesGA extends SimpleGA {
 	protected List<Chromosome> crossover(List<ParentPair> parents) {
 		// TODO Auto-generated method stub
 		return super.crossover(parents);
+	}
+	
+	@Override
+	protected List<Chromosome> acceptance(List<Chromosome> children) {
+		return super.acceptance(children);
 	}
 
 	@Override
